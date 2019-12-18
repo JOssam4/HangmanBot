@@ -1,0 +1,18 @@
+{
+    "name": "Echo Bot",
+    "description": "",
+    "services": [
+        {
+            "type": "endpoint",
+            "appId": "",
+            "appPassword": "",
+            "endpoint": "http://localhost:3978/api/messages",
+            "id": "b740e790-166a-11ea-bded-0b475f513609",
+            "name": "http://localhost:3978/api/messages"
+        }
+    ],
+    "padlock": "",
+    "version": "2.0",
+    "overrides": null,
+    "path": "C:\\Users\\James\\Documents\\Azure Workshop\\BotBuilder-Samples-master\\samples\\javascript_nodejs\\02.echo-bot\\Echo Bot.bot"
+}
