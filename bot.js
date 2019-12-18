@@ -60,9 +60,10 @@ class Helper {
     `;
     }
     
-    static guessMade(mistakeNum, displayed, word) { 
+    static guessMade(mistakeNum, displayed, word, guessed=[]) { 
         if (mistakeNum == 0) {
             return `
+    You've guessed: ${guessed}
             _____________
             |          \\|
                         |
@@ -77,6 +78,7 @@ class Helper {
         }
         else if (mistakeNum == 1) {
             return `
+    You've guessed: ${guessed}
             _____________
             |          \\|
            (_)          |
@@ -91,6 +93,7 @@ class Helper {
         }
         else if (mistakeNum == 2) {
             return `
+    You've guessed: ${guessed}
             _____________
             |          \\|
            (_)          |
@@ -105,6 +108,7 @@ class Helper {
         }
         else if (mistakeNum == 3) {
             return `
+    You've guessed: ${guessed}
             _____________
             |          \\|
            (_)          |
@@ -119,6 +123,7 @@ class Helper {
         }
         else if (mistakeNum == 4) {
             return `
+    You've guessed: ${guessed}
             _____________
             |          \\|
            (_)          |
@@ -133,6 +138,7 @@ class Helper {
         }
         else if (mistakeNum == 5) {
             return `
+    You've guessed: ${guessed}
             _____________
             |          \\|
            (_)          |
@@ -147,6 +153,7 @@ class Helper {
         }
         else if (mistakeNum == 6) {
             return `
+    You've guessed: ${guessed}
             _____________
             |          \\|
            (_)          |
@@ -161,6 +168,7 @@ class Helper {
         }
         else if (mistakeNum == 7) {
             return `
+    You've guessed: ${guessed}
             _____________
             |          \\|
            (xx)         |
@@ -194,8 +202,6 @@ class EchoBot extends ActivityHandler {
         this.onMessage(async (context, next) => {
             let text = context.activity.text;
             text = text.toLowerCase();
-            //await context.sendActivity(`typeof text = ${typeof text}`);
-            //await context.sendActivity(`You said ${text}`);
             if (text === "no") {
                 if (gameStarted == false) {
                     await context.sendActivity('Come back if you want to play hangman.');
@@ -237,7 +243,7 @@ class EchoBot extends ActivityHandler {
                             if (!guessed.includes(text)) {    
                                 mistakesMade++;
                                 guessed.push(text);
-                                await context.sendActivity(Helper.guessMade(mistakesMade, displayed, word));
+                                await context.sendActivity(Helper.guessMade(mistakesMade, displayed, word, guessed));
                                 if (mistakesMade == 7) {
                                     gameStarted = false; // these next few lines reset the game
                                     word = "";
@@ -261,7 +267,7 @@ class EchoBot extends ActivityHandler {
                                         displayed = arr.join(" ");
                                     }
                                 }
-                                await context.sendActivity(Helper.guessMade(mistakesMade, displayed, word));
+                                await context.sendActivity(Helper.guessMade(mistakesMade, displayed, word, guessed));
                                 if (displayed.split(" ").join("").toLowerCase() === word) {
                                     await context.sendActivity("You win!!!");
                                     gameStarted = false;
