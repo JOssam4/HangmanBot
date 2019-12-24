@@ -5,6 +5,7 @@
 const { ActivityHandler } = require('botbuilder');
 const Words = require("./NiceHangman");
 const Helper = require("./HangmanHelper");
+const HashMap = require("hashmap");
 
 class EchoBot extends ActivityHandler {
     constructor() {
@@ -34,8 +35,10 @@ class EchoBot extends ActivityHandler {
                     await context.sendActivity('Starting game.');
                     let wordFileLength = await Helper.getWordFileLength();
                     let lineNum = Helper.generateRandomNum(wordFileLength);
-                    word = Helper.getWordFromLineNum(lineNum);
-                    displayed = "_ ".repeat(word.length);
+                    word = new HashMap();
+                    word.set(Helper.getWordFromLineNum(lineNum), "");
+                    //word = Helper.getWordFromLineNum(lineNum);
+                    displayed = "_ ".repeat(word.keys()[0].length);
                     await context.sendActivity(Helper.drawEmptyHanger(displayed));
 
                 }
@@ -64,7 +67,9 @@ class EchoBot extends ActivityHandler {
                     else if (text === "normal") {
                         displayed = "_ ".repeat(word.length);
                         len = word.length;
-                        
+                        let myWord = word;
+                        word = new HashMap();
+                        word.set(myWord, ""); // make word be a hashmap like {targetWord: ""}
                     }
                     await context.sendActivity(Helper.drawEmptyHanger(displayed));
                     
@@ -94,6 +99,10 @@ class EchoBot extends ActivityHandler {
                         await context.sendActivity('What?');
                     }
                     else {
+                        /**
+                         * @todo there's a lot of similar code for easy and normal difficulty modes. See if they can be merged.
+                         * Maybe wait until the hard difficulty mode is ready for that though.
+                         */
                         if (difficulty === "easy") {
                             if (!Words.isValidGuess(word, text)) {
                                 mistakesMade++;
@@ -139,49 +148,54 @@ class EchoBot extends ActivityHandler {
                                 
                             }
                         }
-                        else if (!word.includes(text)) {
-                            if (!guessed.includes(text)) {    
-                                mistakesMade++;
-                                guessed.push(text);
-                                await context.sendActivity(Helper.guessMade(mistakesMade, displayed, word, guessed));
-                                if (mistakesMade == 7) {
-                                    gameStarted = false; // these next few lines reset the game
-                                    word = "";
-                                    displayed = "";
-                                    mistakesMade = 0;
-                                    guessed = [];
-                                    await context.sendActivity("Play again? (yes/no)");
-                                }
-                            }
-                            else {
-                                await context.sendActivity("You already guessed that.");
-                            }
-                        }
-                        else {
-                            if (!guessed.includes(text)) {
-                                guessed.push(text);
-                                if (difficulty === "normal") {
-                                    for (let i = 0; i < word.length; i++) { // basically uses fancy data type manipulation to check change the displayed text.
-                                        if (word[i] == text) {
-                                            let arr = displayed.split(" ");
-                                            arr[i] = word[i].toUpperCase();
-                                            displayed = arr.join(" ");
-                                        }
+                        else if (difficulty === "normal") {
+                            if (!word.keys()[0].includes(text)) {
+                                if (!guessed.includes(text)) {    
+                                    mistakesMade++;
+                                    guessed.push(text);
+                                    await context.sendActivity(Helper.guessMade(mistakesMade, displayed, word, guessed));
+                                    if (mistakesMade == 7) {
+                                        gameStarted = false; // these next few lines reset the game
+                                        difficulty = false;
+                                        word = "";
+                                        displayed = "";
+                                        mistakesMade = 0;
+                                        guessed = [];
+                                        await context.sendActivity("Play again? (yes/no)");
                                     }
                                 }
-                                await context.sendActivity(Helper.guessMade(mistakesMade, displayed, word, guessed));
-                                if (displayed.split(" ").join("").toLowerCase() === word) {
-                                    await context.sendActivity("You win!!!");
-                                    gameStarted = false;
-                                    word = "";
-                                    displayed = "";
-                                    mistakesMade = 0;
-                                    guessed = [];
-                                    await context.sendActivity("Would you like to play again? (yes/no)");
+                                else {
+                                    await context.sendActivity("You already guessed that.");
                                 }
                             }
+                    
                             else {
-                                await context.sendActivity("You already guessed that.");
+                                if (!guessed.includes(text)) {
+                                    guessed.push(text);
+                                    if (difficulty === "normal") {
+                                        for (let i = 0; i < word.keys()[0].length; i++) { // basically uses fancy data type manipulation to check change the displayed text.
+                                            if (word.keys()[0][i] == text) {
+                                                let arr = displayed.split(" ");
+                                                arr[i] = word.keys()[0][i].toUpperCase();
+                                                displayed = arr.join(" ");
+                                            }
+                                        }
+                                    }
+                                    await context.sendActivity(Helper.guessMade(mistakesMade, displayed, word, guessed));
+                                    if (displayed.split(" ").join("").toLowerCase() === word.keys()[0]) {
+                                        await context.sendActivity("You win!!!");
+                                        gameStarted = false;
+                                        word.clear();
+                                        displayed = "";
+                                        mistakesMade = 0;
+                                        guessed = [];
+                                        difficulty = false;
+                                        await context.sendActivity("Would you like to play again? (yes/no)");
+                                    }
+                                }
+                                else {
+                                    await context.sendActivity("You already guessed that.");
+                                }
                             }
                         }
                     }

@@ -6,6 +6,7 @@
 const fs = require('fs');
 const lineByLine = require('n-readlines');
 const readline = require('readline');
+//const HashMap = require('hashmap');
 
 class Helper {
     /**
@@ -199,7 +200,7 @@ class Helper {
           /   \\         |
                 _______/_\\_______
             YOU LOSE!
-        The word was ${word}
+        The word was ${word.keys()[0]}
     `;
         }
     }
