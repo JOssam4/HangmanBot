@@ -1,4 +1,5 @@
 // Author: James Ossam
+// Last updated: 12/23/2019
 
 // The purpose of this bot is to play hangman as normal, but
 // to make the game as easy as possible for the player.
@@ -28,40 +29,15 @@ class Words {
         }
         return map;
     }
-
-    // deletes every word in the hashmap that does not contain the letter guessed. (making it easy)
-    // returns the hashmap.
-    static removeInvalid(map, letterGuessed) {
-        map.forEach((value, key) => {
-            if (!key.includes(letterGuessed)) {
-                map.delete(key);
-            }
-        })
-        return map;
-    }
-
     // checks if there would be words left if all without the guessed letter in them are removed
     // returns true or false.
     static isValidGuess(map, guess) {
-        /*
-        map.forEach((value, key) => {
-            if (key.includes(guess)) {
-                ret = true;
-            }
-        })
-        */
-        
         for (let i = 0; i < map.keys().length; i++) {
             if (map.keys()[i].includes(guess)) {
                 return true;
             }
         }
         return false;
-    }
-
-    // returns the number of possible words
-    static possibleWords(map) {
-        return map.size();
     }
 
 
@@ -133,8 +109,4 @@ class Words {
 
     }
 }   
-
-
-
-
 module.exports = Words;
