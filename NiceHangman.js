@@ -15,9 +15,12 @@ const lineByLine = require('n-readlines');
 
 
 class Words {
-    // len = length the target word.
     // should return a hashmap containing all words in text file of length len.
     
+    /**
+     * @param {Number} len an integer representing the length of the target word. 
+     * @returns {HashMap} 
+     */ 
     static getWordsByLength(len) {
         let map = new HashMap();
         const liner = new lineByLine('words_alpha.txt');
@@ -29,8 +32,11 @@ class Words {
         }
         return map;
     }
-    // checks if there would be words left if all without the guessed letter in them are removed
-    // returns true or false.
+    /** 
+     * @param {HashMap} map a hashmap of all words, independent of guess
+     * @param {String} guess a single-character string containing the current guess
+     * @returns {boolean} true if any of the words in @param map contain @param guess; false otherwise.
+    */
     static isValidGuess(map, guess) {
         for (let i = 0; i < map.keys().length; i++) {
             if (map.keys()[i].includes(guess)) {
@@ -40,8 +46,13 @@ class Words {
         return false;
     }
 
-
-    // remove from hashmap all words where letter not at position.
+    /**
+     * 
+     * @param {HashMap} map a hashmap containing all words
+     * @param {Number} pos the position at which to set the letter
+     * @param {String} letter the letter to be set
+     * @returns {HashMap} the new hashmap only containing words with @param letter at @param pos.
+     */
     static setLetterAtPos(map, pos, letter) {
         let newMap = new HashMap();
         map.forEach((value, key) => {
@@ -51,7 +62,13 @@ class Words {
         }) 
         return newMap; 
     }
-
+    /**
+     * 
+     * @param {HashMap} map a hashmap containing all words
+     * @param {Number} len the length of the target words
+     * @param {String} letter the letter to be set
+     * @returns {Number} an index [0, @param len) that corresponds to the index where MOST of the words in @param map have the letter @param letter.
+     */
     static findPosForLetter(map, len, letter) {
         let otherMap = new HashMap(); // each entry is position: (num of elements with that letter at that position.)
         for (let i = 0; i < len; i++) {
@@ -76,6 +93,14 @@ class Words {
         //return otherMap.get(maxPos); //returns the desired words instead.
     }
 
+    /**
+     * 
+     * @param {HashMap} map Hashmap containing all valid words
+     * @param {Array} guessed An array containing all previously guessed letters
+     * @param {String} displayed The currently displayed string. Looks something like _ _ A _ _ I _
+     * @param {Number} len The length of the target words
+     * @returns {String} a new value for @param displayed where previously guessed repeat letters have been filled in.
+     */
     static fillInAllPossibleBlanks(map, guessed, displayed, len) {
         // if all words left in hashmap have the same value at one of the blanks, fill in that blank with that value.
         let arr = displayed.split(" ");
@@ -108,5 +133,6 @@ class Words {
         return displayed;
 
     }
-}   
+}
+   
 module.exports = Words;

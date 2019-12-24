@@ -6,9 +6,6 @@ const { ActivityHandler } = require('botbuilder');
 const Words = require("./NiceHangman");
 const Helper = require("./HangmanHelper");
 
-
-
-
 class EchoBot extends ActivityHandler {
     constructor() {
         let gameStarted = false;
@@ -32,7 +29,7 @@ class EchoBot extends ActivityHandler {
                 }
             }
             else if (text === "yes") {
-                if ((gameStarted == false) && difficulty) {
+                if (!gameStarted && difficulty) {
                     gameStarted = true;
                     await context.sendActivity('Starting game.');
                     let wordFileLength = await Helper.getWordFileLength();
@@ -42,7 +39,7 @@ class EchoBot extends ActivityHandler {
                     await context.sendActivity(Helper.drawEmptyHanger(displayed));
 
                 }
-                else if ((gameStarted == false) && (!difficulty)) {
+                else if (!gameStarted && !difficulty) {
                     await context.sendActivity("Please choose a difficulty: (easy/normal/hard)");
                 }
                 else {
@@ -69,9 +66,6 @@ class EchoBot extends ActivityHandler {
                         len = word.length;
                         
                     }
-
-                    //displayed = "_ ".repeat(word.length);
-                    //await context.sendActivity(`${word}`);
                     await context.sendActivity(Helper.drawEmptyHanger(displayed));
                     
                 }
@@ -85,11 +79,11 @@ class EchoBot extends ActivityHandler {
 
             else {
                 if (!gameStarted) {
-                    await context.sendActivity('please answer yes/no');
+                    await context.sendActivity('Please answer yes/no');
                     await context.sendActivity(`You said ${text}`);
                 }
                 else if (!difficulty) {
-                    await context.sendActivity('please answer easy/normal/hard');
+                    await context.sendActivity('Please answer easy/normal/hard');
                     await context.sendActivity(`You said ${text}`);
                 }
                 else {
