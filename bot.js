@@ -1,11 +1,12 @@
 // Author: James Ossam
 // Date created: 12/5/2019
-// Last updated: 12/23/2019
+// Last updated: 12/27/2019
 
 const { ActivityHandler } = require('botbuilder');
 const Words = require("./NiceHangman");
 const Helper = require("./HangmanHelper");
 const HashMap = require("hashmap");
+const Hard = require("./EvilHangman");
 
 class EchoBot extends ActivityHandler {
     constructor() {
@@ -58,7 +59,7 @@ class EchoBot extends ActivityHandler {
                     let lineNum = Helper.generateRandomNum(wordFileLength);
                     word = Helper.getWordFromLineNum(lineNum);
                     
-                    if (text === "easy") {
+                    if (text === "easy" || text === "hard") {
                         len = word.length;
                         word = Words.getWordsByLength(len);
                         displayed = "_ ".repeat(len);
@@ -100,14 +101,13 @@ class EchoBot extends ActivityHandler {
                     }
                     else {
                         /**
-                         * @todo there's a lot of similar code for easy and normal difficulty modes. See if they can be merged.
-                         * Maybe wait until the hard difficulty mode is ready for that though.
+                         * @todo there's a lot of similar code for all difficulty modes. See if they can be merged better.
                          */
                         if (difficulty === "easy") {
                             if (!Words.isValidGuess(word, text)) {
                                 mistakesMade++;
                                 guessed.push(text);
-                                await context.sendActivity(Helper.guessMade(mistakesMade, displayed, word.keys()[0], guessed)); // instead of rewriting this function, just give it the first possible word.
+                                await context.sendActivity(Helper.guessMade(mistakesMade, displayed, word, guessed)); // instead of rewriting this function, just give it the first possible word.
                                 if (mistakesMade == 7) {
                                     gameStarted = false;
                                     difficulty = false;
@@ -197,6 +197,51 @@ class EchoBot extends ActivityHandler {
                                     await context.sendActivity("You already guessed that.");
                                 }
                             }
+                        }
+                        else if (difficulty === "hard") {
+                            if (!guessed.includes(text) && Hard.letterCanBeRemoved(word, text)) {
+                            word = Hard.removeAllWithLetter(word, text);
+                                mistakesMade++;
+                                guessed.push(text);
+                                await context.sendActivity(Helper.guessMade(mistakesMade, displayed, word, guessed)); // instead of rewriting this function, just give it the first possible word.
+                                if (mistakesMade == 7) {
+                                    gameStarted = false;
+                                    difficulty = false;
+                                    word.clear();
+                                    displayed = "";
+                                    mistakesMade = 0;
+                                    guessed = [];
+                                    await context.sendActivity("Play again? (yes/no)");
+                                }
+                            }
+                            else {
+                                if (!guessed.includes(text)) {
+                                    guessed.push(text);
+                                    let pos = Hard.findPosForLetter(word, len, text);
+                                    let arr = displayed.split(" ");
+                                    arr[pos] = text.toUpperCase();
+                                    displayed = arr.join(" ");
+                                    word = Words.setLetterAtPos(word, pos, text);
+                                    displayed = Words.fillInAllPossibleBlanks(word, guessed, displayed, len);
+                                    if (!displayed.includes("_")) {
+                                        await context.sendActivity("You win!");
+                                        await context.sendActivity(`Your word was: ${displayed}`);
+                                        gameStarted = false;
+                                        word = "";
+                                        mistakesMade = 0;
+                                        guessed = [];
+                                        len = -1;
+                                        difficulty = false;
+                                        await context.sendActivity("Play again? (yes/no)");
+                                    }
+                                    else {
+                                        await context.sendActivity(Helper.guessMade(mistakesMade, displayed, word, guessed));
+                                    }
+                                }
+                                else {
+                                    await context.sendActivity("You already guessed that!");
+                                }
+                            }           
                         }
                     }
                 }

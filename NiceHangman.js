@@ -15,7 +15,6 @@ const lineByLine = require('n-readlines');
 
 
 class Words {
-    // should return a hashmap containing all words in text file of length len.
     
     /**
      * @param {Number} len an integer representing the length of the target word. 
@@ -90,7 +89,6 @@ class Words {
             }
         })
         return maxPos;
-        //return otherMap.get(maxPos); //returns the desired words instead.
     }
 
     /**
@@ -134,5 +132,5 @@ class Words {
 
     }
 }
-   
+
 module.exports = Words;
